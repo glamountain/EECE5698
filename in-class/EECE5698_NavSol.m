@@ -47,7 +47,7 @@ true_lambda_b_rad = deg2rad*true_lambda_b_deg;                                  
 
 true_p_eb_ecef = pv_NED_to_ECEF(true_phi_b_rad,true_lambda_b_rad,true_h_b,[0;0;0]);                     % Ellipsoidal-to-Cartesian
 
-iopt = 2;
+iopt = 1;
 switch (iopt)
     case 1 % Initialize to Origin
         GNSS_config.init_est_p_eb_ecef = [0;0;0];
@@ -151,7 +151,7 @@ for epoch = 1:GNSS_config.no_epochs
         % Height variance is arbitrarily set to 50 m, and clock offset variance is arbitrarily set to 100
     end
     % TODO: WiP
-    % [est_p_eb_ecef_WLSA(:,epoch),est_clock_WLSA(epoch), num_iter_WLSA(epoch)] = GNSS_WLSA_position(GNSS_measurements,no_GNSS_meas,GNSS_config.init_est_p_eb_ecef,W_matrix,apriori);
+    [est_p_eb_ecef_WLSA(:,epoch),est_clock_WLSA(epoch), num_iter_WLSA(epoch)] = GNSS_WLSA_position(GNSS_measurements,no_GNSS_meas,GNSS_config.init_est_p_eb_ecef,W_matrix,apriori);
     
     % transform estimates to latitude, longitude, and height
     [est_phi_b_LS(epoch),est_lambda_b_LS(epoch),est_h_b_LS(epoch),~] = pv_ECEF_to_NED(est_p_eb_ecef_LS(:,epoch),[0;0;0]);
