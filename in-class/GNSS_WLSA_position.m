@@ -41,7 +41,7 @@ omega_ie = 7.292115E-5;  % Earth rotation rate in rad/s
 % POSITION AND CLOCK OFFSET
 
 % Setup predicted state
-x_pred(1:3,1) = predicted_r_ea_e;
+x_pred(1:3,1) = apriori.x0(1:3,1);
 x_pred(4,1) = 0;
 test_convergence = 1;
 
@@ -77,14 +77,13 @@ while test_convergence>0.0001
         
     end % for j
         
-    % Unweighted least-squares solution, (9.35)/(9.141)
+    % Weighted least-squares solution, (9.35)/(9.141)
     K = apriori.Q * H_matrix(1:no_GNSS_meas,:)' * ...
         inv(H_matrix(1:no_GNSS_meas,:) * apriori.Q * H_matrix(1:no_GNSS_meas,:)' + ...
         inv(W_matrix(1:no_GNSS_meas,:)));
-    x_est = x_pred + inv(H_matrix(1:no_GNSS_meas,:)' * ...
-        W_matrix(1:no_GNSS_meas,:) * H_matrix(1:no_GNSS_meas,:)) * ...
-        H_matrix(1:no_GNSS_meas,:)' * W_matrix(1:no_GNSS_meas,:) * ...
-        (GNSS_measurements(1:no_GNSS_meas,1) -  pred_meas(1:no_GNSS_meas));
+    x_est = apriori.x0 + K * ...
+        ((GNSS_measurements(1:no_GNSS_meas,1) -  pred_meas(1:no_GNSS_meas)) - ...
+        H_matrix(1:no_GNSS_meas,:)*apriori.x0);
 
 %     % Compute GDOP from H matrix
 %     est_gdop = sqrt(trace(inv(H_matrix(1:no_GNSS_meas,:)' * ...

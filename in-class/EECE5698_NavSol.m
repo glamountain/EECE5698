@@ -15,9 +15,9 @@ deg2rad = pi/180;
 %% Simulation Parameters 
 
 % number of epochs or pseudoranges
-GNSS_config.no_epochs = 60;          
+GNSS_config.no_epochs = 600;          
 % time between consecutive pseudorange measurements (s)
-GNSS_config.sampling = 0.01;          
+GNSS_config.sampling = 1;          
 % number of satellites
 GNSS_config.no_sat = 30;              
 % Mask angle (deg)
@@ -121,6 +121,10 @@ for epoch = 1:GNSS_config.no_epochs
     % LS
     [est_p_eb_ecef_LS(:,epoch),est_clock_LS(epoch), est_gdop_LS(epoch), num_iter_LS(epoch)] = GNSS_LS_position(GNSS_measurements,no_GNSS_meas,GNSS_config.init_est_p_eb_ecef);
     
+%     if (est_gdop_LS(epoch) > 1.85)
+%         keyboard;
+%     end
+    
     % WLS
     % (GNSS_config.code_track_err_SD ./ sin(elevations(1:no_GNSS_meas,epoch))) = sigma(sat)
     % R_matrix = diag(sigma(sat)^2)
@@ -133,20 +137,21 @@ for epoch = 1:GNSS_config.no_epochs
     aopt = 0;
     switch(aopt)
         case 0 % Apriori around United States
-            apriori.x0  = pv_NED_to_ECEF(0.6952, -1.7206, 575, 0); % Geographic center of USA
-            apriori.Q = diag([2546e3,4313e3,50]); % Width and Height of US in m
+            apriori.x0  = [pv_NED_to_ECEF(0.6952, -1.7206, 575, 0); 0]; % Geographic center of USA
+            apriori.Q = diag([2546e3,4313e3,50,100]); % Width and Height of US in m
             
         case 1
-            apriori.x0  = pv_NED_to_ECEF(0.7395, -1.2557, 342, 0); % Geographic center of Massachusetts
-            apriori.Q = diag([182e3,295e3,50]); % Width and Height of US in m
-        case 2
-            apriori.x0  = pv_NED_to_ECEF(0.7393, -1.2402, 10, 0); % Geographic center of Boston
-            apriori.Q = diag([67820,67820,50]); % Approximate Width and Height of Boston urban area
+            apriori.x0  = [pv_NED_to_ECEF(0.7395, -1.2557, 342, 0); 0]; % Geographic center of Massachusetts
+            apriori.Q = diag([182e3,295e3,50,100]); % Width and Height of US in m
 
-        % Height variance is arbitrarily set to 50 m
+        case 2
+            apriori.x0  = [pv_NED_to_ECEF(0.7393, -1.2402, 10, 0); 0]; % Geographic center of Boston
+            apriori.Q = diag([67820,67820,50,100]); % Approximate Width and Height of Boston urban area
+
+        % Height variance is arbitrarily set to 50 m, and clock offset variance is arbitrarily set to 100
     end
     % TODO: WiP
-    %[est_p_eb_ecef_WLSA(:,epoch),est_clock_WLSA(epoch), num_iter_WLSA(epoch)] = GNSS_WLSA_position(GNSS_measurements,no_GNSS_meas,GNSS_config.init_est_p_eb_ecef,W_matrix,apriori);
+    % [est_p_eb_ecef_WLSA(:,epoch),est_clock_WLSA(epoch), num_iter_WLSA(epoch)] = GNSS_WLSA_position(GNSS_measurements,no_GNSS_meas,GNSS_config.init_est_p_eb_ecef,W_matrix,apriori);
     
     % transform estimates to latitude, longitude, and height
     [est_phi_b_LS(epoch),est_lambda_b_LS(epoch),est_h_b_LS(epoch),~] = pv_ECEF_to_NED(est_p_eb_ecef_LS(:,epoch),[0;0;0]);
