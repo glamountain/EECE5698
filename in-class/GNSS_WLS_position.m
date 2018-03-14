@@ -1,7 +1,7 @@
-function [est_r_ea_e,est_clock, est_gdop, num_iter] = GNSS_LS_position(...
-    GNSS_measurements,no_GNSS_meas,predicted_r_ea_e)
-% GNSS_LS_position - Calculates position, clock offset, 
-% using unweighted iterated least squares.
+function [est_r_ea_e,est_clock, num_iter] = GNSS_WLS_position(...
+    GNSS_measurements,no_GNSS_meas,predicted_r_ea_e,W_matrix)
+% GNSS_WLS_position - Calculates position, clock offset, 
+% using weighted iterated least squares.
 %
 % Software for use with "Principles of GNSS, Inertial, and Multisensor
 % Integrated Navigation Systems," Second Edition.
@@ -17,6 +17,7 @@ function [est_r_ea_e,est_clock, est_gdop, num_iter] = GNSS_LS_position(...
 %   no_GNSS_meas          Number of satellites for which measurements are
 %                         supplied
 %   predicted_r_ea_e      prior predicted ECEF user position (m)
+%   W_matrix              Weighting Matrix
 %
 % Outputs:
 %   est_r_ea_e            estimated ECEF user position (m)
@@ -25,7 +26,7 @@ function [est_r_ea_e,est_clock, est_gdop, num_iter] = GNSS_LS_position(...
 % Copyright 2012, Paul Groves
 % License: BSD; see license.txt for details
 %
-%   P. Closas (2018): version only for position and clock offset LS estimation
+%   G. LaMountain (2018): version only for position and clock offset WLS estimation
 % 
 
 % Constants (sone of these could be changed to inputs at a later date)
@@ -74,13 +75,14 @@ while test_convergence>0.0001
     end % for j
         
     % Unweighted least-squares solution, (9.35)/(9.141)
-    x_est = x_pred + inv(H_matrix(1:no_GNSS_meas,:)' *...
-        H_matrix(1:no_GNSS_meas,:)) * H_matrix(1:no_GNSS_meas,:)' *...
+    x_est = x_pred + inv(H_matrix(1:no_GNSS_meas,:)' * ...
+        W_matrix(1:no_GNSS_meas,:) * H_matrix(1:no_GNSS_meas,:)) * ...
+        H_matrix(1:no_GNSS_meas,:)' * W_matrix(1:no_GNSS_meas,:) * ...
         (GNSS_measurements(1:no_GNSS_meas,1) -  pred_meas(1:no_GNSS_meas));
 
-    % Compute GDOP from H matrix
-    est_gdop = sqrt(trace(inv(H_matrix(1:no_GNSS_meas,:)' * ...
-        H_matrix(1:no_GNSS_meas,:))));
+%     % Compute GDOP from H matrix
+%     est_gdop = sqrt(trace(inv(H_matrix(1:no_GNSS_meas,:)' * ...
+%         H_matrix(1:no_GNSS_meas,:))));
     
     % Test convergence    
     test_convergence = sqrt((x_est - x_pred)' * (x_est - x_pred));
