@@ -1,4 +1,4 @@
-function [est_r_ea_e,est_clock] = GNSS_LS_position(...
+function [est_r_ea_e,est_clock, est_gdop, num_iter] = GNSS_LS_position(...
     GNSS_measurements,no_GNSS_meas,predicted_r_ea_e)
 % GNSS_LS_position - Calculates position, clock offset, 
 % using unweighted iterated least squares.
@@ -45,6 +45,8 @@ test_convergence = 1;
 pred_meas = zeros(no_GNSS_meas,1);
 H_matrix = zeros(no_GNSS_meas,4);
 
+num_iter = 0;
+
 % Repeat until convergence (i.e. two consecutive iterations provide almost identical results)
 while test_convergence>0.0001
     
@@ -76,11 +78,18 @@ while test_convergence>0.0001
         H_matrix(1:no_GNSS_meas,:)) * H_matrix(1:no_GNSS_meas,:)' *...
         (GNSS_measurements(1:no_GNSS_meas,1) -  pred_meas(1:no_GNSS_meas));
 
+    % Compute GDOP from H matrix
+    est_gdop = sqrt(trace(inv(H_matrix(1:no_GNSS_meas,:)' * ...
+        H_matrix(1:no_GNSS_meas,:))));
+    
     % Test convergence    
     test_convergence = sqrt((x_est - x_pred)' * (x_est - x_pred));
     
     % Set predictions to estimates for next iteration
     x_pred = x_est;
+    
+    % Increment the iteration count
+    num_iter = num_iter + 1;
     
 end % while
 
