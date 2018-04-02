@@ -1,7 +1,7 @@
-function [est_r_ea_e,est_clock, est_gdop, num_iter] = GNSS_LS_position(...
-    GNSS_measurements,no_GNSS_meas,predicted_r_ea_e)
-% GNSS_LS_position - Calculates position, clock offset, 
-% using unweighted iterated least squares.
+function [est_r_ea_e,est_clock, num_iter] = GNSS_WLSA_position(...
+    GNSS_measurements,no_GNSS_meas,~,W_matrix,apriori)
+% GNSS_WLSA_position - Calculates position, clock offset, 
+% using weighted iterated least squares with apriori.
 %
 % Software for use with "Principles of GNSS, Inertial, and Multisensor
 % Integrated Navigation Systems," Second Edition.
@@ -17,6 +17,10 @@ function [est_r_ea_e,est_clock, est_gdop, num_iter] = GNSS_LS_position(...
 %   no_GNSS_meas          Number of satellites for which measurements are
 %                         supplied
 %   predicted_r_ea_e      prior predicted ECEF user position (m)
+%   W_matrix              Weighting Matrix
+%   apriori               Apriori measuement statistics
+%     x0                    State mean
+%     Q                     State covariance
 %
 % Outputs:
 %   est_r_ea_e            estimated ECEF user position (m)
@@ -25,7 +29,7 @@ function [est_r_ea_e,est_clock, est_gdop, num_iter] = GNSS_LS_position(...
 % Copyright 2012, Paul Groves
 % License: BSD; see license.txt for details
 %
-%   P. Closas (2018): version only for position and clock offset LS estimation
+%   G. LaMountain (2018): version only for position and clock offset WLSA estimation
 % 
 
 % Constants (sone of these could be changed to inputs at a later date)
@@ -37,7 +41,7 @@ omega_ie = 7.292115E-5;  % Earth rotation rate in rad/s
 % POSITION AND CLOCK OFFSET
 
 % Setup predicted state
-x_pred(1:3,1) = predicted_r_ea_e;
+x_pred(1:3,1) = apriori.x0(1:3,1);
 x_pred(4,1) = 0;
 test_convergence = 1;
 
@@ -73,14 +77,17 @@ while test_convergence>0.0001
         
     end % for j
         
-    % Unweighted least-squares solution, (9.35)/(9.141)
-    x_est = x_pred + inv(H_matrix(1:no_GNSS_meas,:)' *...
-        H_matrix(1:no_GNSS_meas,:)) * H_matrix(1:no_GNSS_meas,:)' *...
-        (GNSS_measurements(1:no_GNSS_meas,1) -  pred_meas(1:no_GNSS_meas));
+    % Weighted least-squares solution, (9.35)/(9.141)
+    K = apriori.Q * H_matrix(1:no_GNSS_meas,:)' * ...
+        inv(H_matrix(1:no_GNSS_meas,:) * apriori.Q * H_matrix(1:no_GNSS_meas,:)' + ...
+        inv(W_matrix(1:no_GNSS_meas,:)));
+    x_est = x_pred + K * ...
+        ((GNSS_measurements(1:no_GNSS_meas,1) -  pred_meas(1:no_GNSS_meas)));% - ...
+        % H_matrix(1:no_GNSS_meas,:)*x_pred);
 
-    % Compute GDOP from H matrix
-    est_gdop = sqrt(trace(inv(H_matrix(1:no_GNSS_meas,:)' * ...
-        H_matrix(1:no_GNSS_meas,:))));
+%     % Compute GDOP from H matrix
+%     est_gdop = sqrt(trace(inv(H_matrix(1:no_GNSS_meas,:)' * ...
+%         H_matrix(1:no_GNSS_meas,:))));
     
     % Test convergence    
     test_convergence = sqrt((x_est - x_pred)' * (x_est - x_pred));
