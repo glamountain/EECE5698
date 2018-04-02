@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amsfonts}
+\usepackage{subfigure}
+\usepackage{bm}
+\usepackage{listings}
+\usepackage{pifont}%
+
+\usepackage{pgfplots,tikz}
+
+\usepackage{fullpage}      % Margens
+\usepackage{indentfirst}   % Autoidentar
+\usepackage{graphicx}       % Pictures
+
+\begin{document}
+
+\noindent Northeastern University
+\hfill March 26, 2018
+
+\noindent Department of Electrical and Computer Engineering
+\hfill EECE5698-ST (Spring 2018)
+
+\noindent {} \hfill \textbf{Homework 3}
+
+\noindent \rule{\linewidth}{1.5pt}
+
+\vspace*{.5cm}
+
+\underline{Due date}: Wednesday 4, April 2018. Hand in at class or send a scanned copy to closas@northeastern.edu
+
+To complete the problems, feel free to consult other sources (i.e., books, internet, etc.) besides class notes.  Justify your answers!
+
+\noindent \rule{\linewidth}{1pt}
+\vspace*{1cm}
+
+
+% \textbf{Problem}:
+Taking as a reference the WLSA algorithm (implemented in HW2), implement a Kalman filter solution as the positioning algorithm. 
+Similarly as in WLSA (and WLS), initialize variables and replicate error computation and plotting code.
+
+Recall that in the KF solution, the a priori information, comes from the previous state estimate, $\hat{\mathbf{x}}_{t-1|t-1}$, with covariance matrix $\mathbf{P}_{t-1|t-1}$. These are computed sequentially
+
+\begin{enumerate}
+\item[(a)] Given that $\mathbf{x}$ includes position ($\mathbf{p}$) and clock offset ($c \delta t$), define suitable values for the mean and covariance of the initial information given to the KF
+\begin{equation}
+\nonumber \mathbf{x}_{0|0} \sim \mathcal{N}(\hat{\mathbf{x}}_{0|0},\mathbf{P}_{0|0}) \;,
+\end{equation}
+\noindent if we would like to inform the algorithm that the receiver is somewhere in $i)$ USA, and $ii)$ Boston. Recall that initial values (and thus a priori) are defined in ECEF.
+\item[(b)] Under the assumption that the receiver is static, what is a reasonable choice for the transition matrix $\mathbf{F}$ and process covariance matrix $\mathbf{Q}$?
+\item[(c)] If the receiver has dynamics, what could be a better choice for $\mathbf{F}$ and $\mathbf{Q}$? if, to account for such dynamics, we would like to augment $\mathbf{x}$ to include the three-dimensional velocity coordinates $\mathbf{v}$, how should we modify $\mathbf{F}$ and $\mathbf{Q}$?  
+\end{enumerate}
+
+Under the assumption that the receiver is static, implement the KF and test it with the initialization conditions in (a).
+\begin{enumerate}
+\item[(d)] Plot the error $\mathbf{e}_t = \mathbf{p}_t - \hat{\mathbf{p}}_t$ in the three coordinates over time. Is it decreasing or increasing?
+\item[(e)] Compare $\mathbf{e}_t$ obtained with the KF and that obtained using LS or WLS solutions. Comment.
+\item[(f)] Plot over time the elements of the covariance matrix ($\mathbf{P}_{t|t}$) relevant to $\mathbf{p}_t$. Are the obtained results coherent with those in (d)?
+\end{enumerate}
+
+
+Hint: use the KF formulation in the slides, where unknown variables are already position and clock offset. Proceed similarly as for the WLSA in terms of defining variables in the main script. Additionally, you'll need to define the a priori parameters in the script and feed them to \verb|GNSS_KF_position.m|
+
+
+
+\end{document}
