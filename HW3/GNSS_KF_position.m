@@ -82,16 +82,12 @@ H_matrix = zeros(no_GNSS_meas,4);
         H_matrix (j,4) = 1;
         
     end % for j
-    
-    %     % Weighted least-squares with a prioris solution
-    %     K = Q0*H_matrix(1:no_GNSS_meas,:)'*inv(H_matrix(1:no_GNSS_meas,:)*Q0*H_matrix(1:no_GNSS_meas,:)' + inv(W));
-    
-    % Kalman solution
+        
+    % Kalman gain solution
     K = (Q0*H_matrix')/(H_matrix*Q0*H_matrix' + R0);
     
     x_est = x_pred + K *...
         (GNSS_measurements(1:no_GNSS_meas,1) -  pred_meas(1:no_GNSS_meas));
-    
     P_est = (eye(4) - K*H_matrix) * P_pred;
     
     %     % Test convergence
