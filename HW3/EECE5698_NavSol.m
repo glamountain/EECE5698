@@ -32,6 +32,8 @@ GNSS_config.rx_clock_offset = 10000;
 GNSS_config.rx_clock_drift = 100;
 % Initial estimated position (meters, ECEF)
 GNSS_config.init_est_p_eb_ecef = [0;0;0];  
+% Initial estimated kalman filter state covariance
+GNSS_config.init_est_P_kf = diag([12756e3;12756e3;100;0]);
 
 % specify location (static) - for instance: 42°20'13.4"N 71°05'25.9"W
 true_phi_b_dms = [42 20 13.4];        % latitude (degree, minutes, seconds)
@@ -46,6 +48,21 @@ true_lambda_b_deg = true_lambda_b_dms(1) + true_lambda_b_dms(2)/60 + true_lambda
 true_lambda_b_rad = deg2rad*true_lambda_b_deg;                                                             % longitude (radians)
 
 true_p_eb_ecef = pv_NED_to_ECEF(true_phi_b_rad,true_lambda_b_rad,true_h_b,[0;0;0]);                     % Ellipsoidal-to-Cartesian
+
+iopt = 1;
+switch (iopt)
+    case 1 % Initialize to Origin
+        GNSS_config.init_est_p_eb_ecef = [0;0;0];
+        % Results in 5 LS iterations
+        
+    case 2 % Initialize to antipodes
+        GNSS_config.init_est_p_eb_ecef = -true_p_eb_ecef;
+        % Results in 6 LS iterations
+        
+    case 3 % Initialize to near true location
+        GNSS_config.init_est_p_eb_ecef = true_p_eb_ecef + 100*randn(3,1);
+        % Results in 3 LS iterations
+end
 
 % norm(true_p_eb_ecef)        % should be comparable to the Earh radius (R_0=6378 km < norm(position_ecef) < R_P=6356 km)
 
@@ -63,11 +80,18 @@ dummy = 0;
 pseudorange = zeros(GNSS_config.no_sat,GNSS_config.no_epochs);
 pseudorangerate = zeros(GNSS_config.no_sat,GNSS_config.no_epochs);
 elevations = zeros(GNSS_config.no_sat,GNSS_config.no_epochs);
+
 est_p_eb_ecef_LS = zeros(3,GNSS_config.no_epochs);
 est_clock_LS = zeros(1,GNSS_config.no_epochs);
 est_phi_b_LS = zeros(1,GNSS_config.no_epochs);
 est_lambda_b_LS = zeros(1,GNSS_config.no_epochs);
 est_h_b_LS = zeros(1,GNSS_config.no_epochs);
+
+est_p_eb_ecef_KF = zeros(3,GNSS_config.no_epochs);
+est_clock_KF = zeros(1,GNSS_config.no_epochs);
+est_phi_b_KF = zeros(1,GNSS_config.no_epochs);
+est_lambda_b_KF = zeros(1,GNSS_config.no_epochs);
+est_h_b_KF = zeros(1,GNSS_config.no_epochs);
 
 %% main loop
 for epoch = 1:GNSS_config.no_epochs    
@@ -90,14 +114,43 @@ for epoch = 1:GNSS_config.no_epochs
     % LS
     [est_p_eb_ecef_LS(:,epoch),est_clock_LS(epoch)] = GNSS_LS_position(GNSS_measurements,no_GNSS_meas,GNSS_config.init_est_p_eb_ecef);
     
+    % KF
+    F = eye(4);
+    Q = 0; % 1e3*eye(4);
+    R = eye(9);
+    if (epoch > 1)
+        [est_p_eb_ecef_KF(:,epoch),est_clock_KF(epoch),est_P_KF] = GNSS_KF_position(GNSS_measurements,no_GNSS_meas,est_p_eb_ecef_KF(:,epoch-1),est_P_KF,F,Q,R);
+    else
+        [est_p_eb_ecef_KF(:,epoch),est_clock_KF(epoch),est_P_KF] = GNSS_KF_position(GNSS_measurements,no_GNSS_meas,GNSS_config.init_est_p_eb_ecef,GNSS_config.init_est_P_kf,F,Q,R);
+    end
+
+%     aopt = 0;
+%     switch(aopt)
+%         case 0 % Apriori around United States
+%             apriori.x0  = [pv_NED_to_ECEF(0.6952, -1.7206, 575, 0); 0]; % Geographic center of USA
+%             apriori.Q = diag([2546e3,4313e3,50,100]); % Width and Height of US in m
+%             
+%         case 1
+%             apriori.x0  = [pv_NED_to_ECEF(0.7395, -1.2557, 342, 0); 0]; % Geographic center of Massachusetts
+%             apriori.Q = diag([182e3,295e3,50,100]); % Width and Height of US in m
+% 
+%         case 2
+%             apriori.x0  = [pv_NED_to_ECEF(0.7393, -1.2402, 10, 0); 0]; % Geographic center of Boston
+%             apriori.Q = diag([67820,67820,50,100]); % Approximate Width and Height of Boston urban area
+% 
+%         % Height variance is arbitrarily set to 50 m, and clock offset variance is arbitrarily set to 100
+%     end
+    
     % transform estimates to latitude, longitude, and height
-    [est_phi_b_LS(epoch),est_lambda_b_LS(epoch),est_h_b_LS(epoch),dummy] = pv_ECEF_to_NED(est_p_eb_ecef_LS(:,epoch),[0;0;0]);
+    [est_phi_b_LS(epoch),est_lambda_b_LS(epoch),est_h_b_LS(epoch),~] = pv_ECEF_to_NED(est_p_eb_ecef_LS(:,epoch),[0;0;0]);
+    [est_phi_b_KF(epoch),est_lambda_b_KF(epoch),est_h_b_KF(epoch),~] = pv_ECEF_to_NED(est_p_eb_ecef_KF(:,epoch),[0;0;0]);
 
     time = time + GNSS_config.sampling;
 end
 
 %% Compute error statistics (RMSE)
 error_ecef_LS = sqrt(sum(mean((est_p_eb_ecef_LS - true_p_eb_ecef*ones(1,GNSS_config.no_epochs)).^2,2)))
+error_ecef_KF = sqrt(sum(mean((est_p_eb_ecef_KF - true_p_eb_ecef*ones(1,GNSS_config.no_epochs)).^2,2)))
 
 %% Plot figures
 t_vec = (0:GNSS_config.no_epochs-1)*GNSS_config.sampling;
