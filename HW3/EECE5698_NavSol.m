@@ -62,7 +62,7 @@ true_p_eb_ecef = pv_NED_to_ECEF(true_phi_b_rad,true_lambda_b_rad,true_h_b,[0;0;0
 %         GNSS_config.init_est_p_eb_ecef = true_p_eb_ecef + 100*randn(3,1);
 %         % Results in 3 LS iterations
 % end
-iopt = 'Boston';
+iopt = 'USA';
 switch(iopt)
     case 'USA' % Apriori around United States
         GNSS_config.init_est_p_eb_ecef  = pv_NED_to_ECEF(0.6952, -1.7206, 575, 0); % Geographic center of USA
@@ -195,18 +195,20 @@ t_vec = (0:GNSS_config.no_epochs-1)*GNSS_config.sampling;
 %     legend('KF estimates','True locations')
     
 % estimation errors    
-figure,
+fig1 = figure('rend','painters','pos',[10 10 900 600]);
 plot(t_vec,error_ecef_LS, 'LineWidth', 2); hold on
 plot(t_vec,error_ecef_KF, 'LineWidth', 2), grid
-    title('LS and KF Estimation Error Evolution by dimension');
+    title(['LS and KF Estimation Error Evolution by dimension (warm start around ' iopt ')']);
     xlabel('time[s]'), ylabel('Estimation error [m]')
     legend('LS Dim-1 Error','LS Dim-2 Error','LS Dim-3 Error','KF Dim-1 Error','KF Dim-2 Error','KF Dim-3 Error','location','NorthEast');
     ylim([-100 300]);
+    saveas(fig1,['.\latex\figures\Err' iopt '.png'])
     
 % covariance matrix
-figure,
+fig2 = figure('rend','painters','pos',[10 10 900 600]);
 plot(t_vec,est_P_KF_vec, 'LineWidth', 2), grid
-    title('Kalman Filter State Covariance Evolution');
+    title(['Kalman Filter State Covariance evolution (warm start around ' iopt ')']);
     xlabel('time[s]'), ylabel('Variance')
     legend('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16');
+    saveas(fig2,['.\latex\figures\Cov' iopt '.png'])
     
