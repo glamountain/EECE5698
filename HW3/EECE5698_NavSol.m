@@ -66,15 +66,15 @@ iopt = 'Boston';
 switch(iopt)
     case 'USA' % Apriori around United States
         GNSS_config.init_est_p_eb_ecef  = pv_NED_to_ECEF(0.6952, -1.7206, 575, 0); % Geographic center of USA
-        GNSS_config.init_est_P_kf = diag([2546e3,4313e3,50,100]); % Width and Height of US in m
+        GNSS_config.init_est_P_kf = diag([2546e3,4313e3,50,1e5]); % Width and Height of US in m
         
     case 'Massachusetts'
         GNSS_config.init_est_p_eb_ecef  = pv_NED_to_ECEF(0.7395, -1.2557, 342, 0); % Geographic center of Massachusetts
-        GNSS_config.init_est_P_kf = diag([182e3,295e3,50,100]); % Width and Height of US in m
+        GNSS_config.init_est_P_kf = diag([182e3,295e3,50,1e5]); % Width and Height of US in m
         
     case 'Boston'
         GNSS_config.init_est_p_eb_ecef  = pv_NED_to_ECEF(0.7393, -1.2402, 10, 0); % Geographic center of Boston
-        GNSS_config.init_est_P_kf = diag([67820,67820,50,100]); % Approximate Width and Height of Boston urban area
+        GNSS_config.init_est_P_kf = diag([67820,67820,50,1e5]); % Approximate Width and Height of Boston urban area
         
         % Height variance is arbitrarily set to 50 m, and clock offset variance is arbitrarily set to 100
 end
@@ -131,9 +131,8 @@ for epoch = 1:GNSS_config.no_epochs
     [est_p_eb_ecef_LS(:,epoch),est_clock_LS(epoch)] = GNSS_LS_position(GNSS_measurements,no_GNSS_meas,GNSS_config.init_est_p_eb_ecef);
     
     % KF
-    F = eye(4);
-    Q = 0; % 1e3*eye(4);
-    R = eye(9);
+    F = eye(4); Q = diag([10,10,10,1e5]);
+    R = diag((GNSS_config.code_track_err_SD ./ sin(elevations(1:no_GNSS_meas,epoch))).^ 2);
     if (epoch > 1)
         [est_p_eb_ecef_KF(:,epoch),est_clock_KF(epoch),est_P_KF] = GNSS_KF_position(GNSS_measurements,no_GNSS_meas,est_p_eb_ecef_KF(:,epoch-1),est_P_KF,F,Q,R);
     else
@@ -199,12 +198,15 @@ t_vec = (0:GNSS_config.no_epochs-1)*GNSS_config.sampling;
 figure,
 plot(t_vec,error_ecef_LS, 'LineWidth', 2); hold on
 plot(t_vec,error_ecef_KF, 'LineWidth', 2), grid
+    title('LS and KF Estimation Error Evolution by dimension');
     xlabel('time[s]'), ylabel('Estimation error [m]')
-    legend('LS Dim-1 Error','LS Dim-2 Error','LS Dim-3 Error','KF Dim-1 Error','KF Dim-2 Error','KF Dim-3 Error','location','East');
+    legend('LS Dim-1 Error','LS Dim-2 Error','LS Dim-3 Error','KF Dim-1 Error','KF Dim-2 Error','KF Dim-3 Error','location','NorthEast');
+    ylim([-100 300]);
     
 % covariance matrix
 figure,
 plot(t_vec,est_P_KF_vec, 'LineWidth', 2), grid
-    xlabel('time[s]'), ylabel('Variance error [m]')
+    title('Kalman Filter State Covariance Evolution');
+    xlabel('time[s]'), ylabel('Variance')
     legend('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16');
     
