@@ -9,6 +9,7 @@
 \usepackage{listings}
 \usepackage{pifont}%
 \usepackage{xcolor}
+\usepackage{siunitx}
 
 \usepackage{pgfplots,tikz}
 
@@ -17,8 +18,11 @@
 \usepackage{graphicx}       % Pictures
 
 \newcommand{\answer}[1]{\color{blue}{#1}\color{black}}
+\sisetup{scientific-notation = engineering}%
 
 \begin{document}
+
+\noindent\answer{Gerald LaMountain}
 
 \noindent Northeastern University
 \hfill March 26, 2018
@@ -32,11 +36,16 @@
 
 \vspace*{.5cm}
 
-\underline{Due date}: Wednesday 4, April 2018. Hand in at class or send a scanned copy to closas@northeastern.edu
+\noindent\underline{Due date}: Wednesday 4, April 2018. Hand in at class or send a scanned copy to closas@northeastern.edu
 
-To complete the problems, feel free to consult other sources (i.e., books, internet, etc.) besides class notes.  Justify your answers!
+\noindent To complete the problems, feel free to consult other sources (i.e., books, internet, etc.) besides class notes.  Justify your answers!
 
 \noindent \rule{\linewidth}{1pt}
+
+\vspace*{1cm}
+
+\answer{Note: Questions are marked in black, while responses are marked in blue.}
+
 \vspace*{1cm}
 
 
@@ -61,18 +70,18 @@ For the United States, in ECEF coordinates, these are:
 \[
    x =
   \left[ {\begin{array}{c}
-   -0.7321 * 10^6 \\
-   -4.8502 * 10^6 \\
-   4.0640 * 10^6 \\
+   \num{-0.7321e6} \\
+   \num{-4.8502e6} \\
+   \num{ 4.0640e6} \\
    0 \\
   \end{array} } \right], 
   %
    P=
   \left[ {\begin{array}{cccc}
-   [2546*10^3 & 0 & 0 & 0 \\
-   0 & 4313*10^3 & 0 & 0 \\
-   0 & 0 & 50 & 0 \\
-   0 & 0 & 0 & 10^5 \\
+   \num{2546e3} & 0 & 0 & 0 \\
+   0 & \num{4313e3} & 0 & 0 \\
+   0 & 0 & \num{50} & 0 \\
+   0 & 0 & 0 & \num{1e5} \\
   \end{array} } \right]
 \]
 
@@ -81,18 +90,18 @@ For Boston, in ECEF coordinates, these are:
 \[
    x =
   \left[ {\begin{array}{c}
-   1.5322 * 10^6 \\
-   -4.4646 * 10^6 \\
-   4.2751 * 10^6 \\
+   \num{1.5322e6} \\
+   \num{-4.4646e6} \\
+   \num{4.2751e6} \\
    0 \\
   \end{array} } \right], 
   %
    P =
   \left[ {\begin{array}{cccc}
-   67820 & 0 & 0 & 0 \\
-   0 & 67820 & 0 & 0 \\
-   0 & 0 & 50 & 0 \\
-   0 & 0 & 0 & 10^5 \\
+   \num{67820} & 0 & 0 & 0 \\
+   0 & \num{67820} & 0 & 0 \\
+   0 & 0 & \num{50} & 0 \\
+   0 & 0 & 0 & \num{1e5} \\
   \end{array} } \right]
 \]
 
@@ -116,10 +125,10 @@ The process noise covariance is a bit less obvious, but if we assume that the tr
   %
    Q=
   \left[ {\begin{array}{cccc}
-   10 & 0 & 0 & 0 \\
-   0 & 10 & 0 & 0 \\
-   0 & 0 & 10 & 0 \\
-   0 & 0 & 0 & 10^5 \\
+   \num{10} & 0 & 0 & 0 \\
+   0 & \num{10} & 0 & 0 \\
+   0 & 0 & \num{10} & 0 \\
+   0 & 0 & 0 & \num{1e5} \\
   \end{array} } \right]
 \]
 
@@ -173,7 +182,7 @@ Under the assumption that the velocities in each of the dimensions are mutually 
     0 & 0 & 0 & 10 & 0 & 0 & 0 \\
     0 & 0 & 0 & 0 & 10 & 0 & 0 \\
     0 & 0 & 0 & 0 & 0 & 10 & 0 \\
-    0 & 0 & 0 & 0 & 0 & 0 & 10^5 \\
+    0 & 0 & 0 & 0 & 0 & 0 & \num{1e5} \\
   \end{array} } \right]
   
 \]
