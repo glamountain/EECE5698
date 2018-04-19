@@ -196,16 +196,28 @@ lags = [0:length(b)-1];
 \end{lstlisting}
 
 
-\answer{As shown in Figure \ref{fig:HW4P2b}, the result of linear autocorrelation is a single peak located at }
+\answer{As shown in Figure \ref{fig:HW4P2b}, the result of linear autocorrelation is a single peak located at zero lag, with negligible values elswhere. In the case of circular correlation, the values are negligible for all lag values.}
 
 \begin{figure*}[ht]
     \centering
     \includegraphics[width=0.8\textwidth]{HW4/latex/figures/HW4P2b.png}
-    \caption{C/A Codes generated with CAcodegen.m}
+    \caption{Autocorrelation of C/A Codes generated with CAcodegen.m}
     \label{fig:HW4P2b}
 \end{figure*}
 
-\item[(c)] Compute the auto-correlation of the concatenation of three PRN codes \verb|[ca_code ca_code ca_code]| with the local replica of one code \verb|ca_code|. Comment the results. 
+\item[(c)] Compute the auto-correlation of the concatenation of three PRN codes \verb|[ca_code ca_code ca_code]| with the local replica of one code \verb|ca_code|. Comment the results.
+
+
+\answer{As shown in Figure \ref{fig:HW4P2c}, the result of linear cross-correlation of the C/A code with itself replicated and contatenated thrice is a peak at zero lag, and peaks at multiples of the length of the sequence, in this case -1024 and -2048.}
+
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{HW4/latex/figures/HW4P2c.png}
+    \caption{Cross-Correlation of a C/A Code with a thrice-replicated version of itself}
+    \label{fig:HW4P2c}
+\end{figure*}
+
 \item[(d)] Verify the auto-correlation properties for one of the codes you generated, for instance \verb|ca_code|. Use linear and circular correlation, as in (b). Explain the results.
 \item[(e)] Verify the cross-correlation properties between \verb|ca_code| and \verb|ca_code2|, the codes you generated. Use linear and circular correlation, as in (b). Explain your results.
 \end{enumerate}
