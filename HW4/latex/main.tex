@@ -1,6 +1,6 @@
 \documentclass[11pt]{article}
 
-\usepackage[brazilian]{babel}
+%\usepackage[brazilian]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -162,8 +162,49 @@ Create a script \verb|EECE5698_CAcode.m|
 that will generate two arbitrary codes (in this case $19$ and $20$, but you can change it). Notice that you should use your \verb|CAcodegen.m| function in the \verb|EECE5698_CAcode.m| script. 
 
 \begin{enumerate}
-\item[(a)] Plot those codes over time, verify that they take values in $\pm1$. 
+\item[(a)] Plot those codes over time, verify that they take values in $\pm1$.
+
+\answer{As shown in Figure \ref{fig:HW4P2a}, the output of the code generator is within the expected range.}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{HW4/latex/figures/HW4P2a.png}
+    \caption{C/A Codes generated with CAcodegen.m}
+    \label{fig:HW4P2a}
+\end{figure*}
+
 \item[(b)] Implement the auto-correlation function of one of the codes, for instance  \verb|ca_code|, using $1)$ linear correlation and $2)$ circular correlation. Interpret the results.
+
+\answer{Linear correlation is performed using the built-in matlab xcorr function. The following code represents a function xcorr\_circ which performs circular correlation:}
+
+\begin{lstlisting}[language=Matlab,numbers=left,stepnumber=1,=\scriptsize,keywordstyle=\color{blue}, commentstyle=\color{green},frame=single]
+function [cxcor, lags] = xcorr_circ(a,b)
+
+% Normalize
+a = a(:) / norm(a);
+b = b(:) / norm(b);
+
+cxcor = zeros(1,length(b));
+% Shift and compute cross correlation at each shift
+for k=1:length(b)
+    
+    cxcor(k) = a' * b;
+    b = circshift(b,1,1);
+
+end
+lags = [0:length(b)-1];
+\end{lstlisting}
+
+
+\answer{As shown in Figure \ref{fig:HW4P2b}, the result of linear autocorrelation is a single peak located at }
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{HW4/latex/figures/HW4P2b.png}
+    \caption{C/A Codes generated with CAcodegen.m}
+    \label{fig:HW4P2b}
+\end{figure*}
+
 \item[(c)] Compute the auto-correlation of the concatenation of three PRN codes \verb|[ca_code ca_code ca_code]| with the local replica of one code \verb|ca_code|. Comment the results. 
 \item[(d)] Verify the auto-correlation properties for one of the codes you generated, for instance \verb|ca_code|. Use linear and circular correlation, as in (b). Explain the results.
 \item[(e)] Verify the cross-correlation properties between \verb|ca_code| and \verb|ca_code2|, the codes you generated. Use linear and circular correlation, as in (b). Explain your results.
