@@ -196,7 +196,7 @@ lags = [0:length(b)-1];
 \end{lstlisting}
 
 
-\answer{As shown in Figure \ref{fig:HW4P2b}, the result of linear autocorrelation is a single peak located at zero lag, with negligible values elswhere. In the case of circular correlation, the values are negligible for all lag values.}
+\answer{As shown in Figure \ref{fig:HW4P2b}, the result of both linear and circular autocorrelation is a single peak located at zero lag, with negligible values elswhere. This is consistent with our expectation that the codes should be poorly correlated with themselves at all but nonzero time offsets.}
 
 \begin{figure*}[ht]
     \centering
@@ -208,7 +208,7 @@ lags = [0:length(b)-1];
 \item[(c)] Compute the auto-correlation of the concatenation of three PRN codes \verb|[ca_code ca_code ca_code]| with the local replica of one code \verb|ca_code|. Comment the results.
 
 
-\answer{As shown in Figure \ref{fig:HW4P2c}, the result of linear cross-correlation of the C/A code with itself replicated and contatenated thrice is a peak at zero lag, and peaks at multiples of the length of the sequence, in this case -1024 and -2048.}
+\answer{As shown in Figure \ref{fig:HW4P2c}, the result of linear cross-correlation of the C/A code with itself replicated and concatenated thrice is a peak at zero lag, and peaks at multiples of the length of the sequence, in this case -1024 and -2048. This is consistent with our expectation. Since the code repeats itself at these locations, we expect that there will be a high value where the codes align properly in the same way they do at zero lag.}
 
 
 \begin{figure*}[ht]
@@ -219,10 +219,21 @@ lags = [0:length(b)-1];
 \end{figure*}
 
 \item[(d)] Verify the auto-correlation properties for one of the codes you generated, for instance \verb|ca_code|. Use linear and circular correlation, as in (b). Explain the results.
-\item[(e)] Verify the cross-correlation properties between \verb|ca_code| and \verb|ca_code2|, the codes you generated. Use linear and circular correlation, as in (b). Explain your results.
-\end{enumerate}
 
-Hint: in implementing linear and circular correlation, make use of built-in Matlab functions \verb|xcorr|, \verb|fft|, and \verb|ifft|
+\answer{As previously described in part (b), Figure \ref{fig:HW4P2b} shows that the result of both linear and circular autocorrelation is a single peak located at zero lag, with negligible values elswhere. This is consistent with the property of these codes being uncorrelated with themselves at non-zero lag values, and thus we consider the auto-correlation properties to be satisfied.}
+
+\item[(e)] Verify the cross-correlation properties between \verb|ca_code| and \verb|ca_code2|, the codes you generated. Use linear and circular correlation, as in (b). Explain your results.
+
+\answer{As shown in Figure \ref{fig:HW4P2d}, the result of both linear and circular cross-correlation of the C/A code for Satellite Vehicle #19 with that for Sattelite Vehicle #20 is low (relative to the length of the sequence) for all lag values. Thus, we consider the property that the codes must be orthogonal to be verified.}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{HW4/latex/figures/HW4P2d.png}
+    \caption{Cross-Correlation of a C/A Code with a thrice-replicated version of itself}
+    \label{fig:HW4P2d}
+\end{figure*}
+
+\end{enumerate}
 
 \begin{lstlisting}[language=Matlab,numbers=left,stepnumber=1,=\scriptsize,keywordstyle=\color{blue}, commentstyle=\color{green},frame=single]
 \end{lstlisting}
@@ -309,11 +320,25 @@ Below there is a code implementing non-coherent acquisitions over \verb|Nnci| CA
 % end
 % \end{lstlisting}
 
-Notice that you would need to generate the codes with \verb|CAcodegen.m|. If you were not able to work that function out, you might load \verb|CAcodes.mat|, which contains a matrix with the Gold code of each satellite (total $32$) in the corresponding row (that is, use \verb|[ca_code]=ca_code_matrix(svnum,:);| instead).
+% Notice that you would need to generate the codes with \verb|CAcodegen.m|. If you were not able to work that function out, you might load \verb|CAcodes.mat|, which contains a matrix with the Gold code of each satellite (total $32$) in the corresponding row (that is, use \verb|[ca_code]=ca_code_matrix(svnum,:);| instead).
 
 
 \begin{enumerate}
-\item[(a)] Go through the code and explain (preferably supporting your discussion with math) the different steps implemented. 
+\item[(a)] Go through the code and explain (preferably supporting your discussion with math) the different steps implemented.
+
+\answer{ See HW4P3.m. For a given satellite, the algorithm performs the following steps:
+
+\begin{enu}
+\item[(i)] Resample the code by replicating the points in the C/A code in order to create a sequence of chips with length defined by the coherent integration time. The number of replications needed to form a chip with the correct sample rate is given by the ratio of the sample rate to the chipping rate, $f_s/f_c$. The elements of the code are replicated to form these chips, and the entire code is replicated in order to form a sequence which spans the entire integration time.
+
+\item[(ii)] A sequence of data of length defined by the non-coherent integration time is "recorded" and used the resampled code is used to compute the cross ambiguity function for a set of doppler frequencies on either side of the intermediate frequency.
+
+\item[(iii)] The cross ambiguity functions computed for each non-coherent integration period are added together to form the approximation of the cross ambiguity function for the entire sample duration.
+
+\end{enu}
+
+}
+
 \item[(b)] Run the code with \verb|Nnci=1|. Explain the processing that takes place in the receiver in this configuration. How many satellites are you able to clearly detect (i.e., distinguish from noise floor)? 
 \item[(c)] Gradually increase \verb|Nnci| from $1$ to $10$ non-coherent integrations. Explain the processing that takes place in the receiver in this configuration. How many satellites are you able to clearly detect (i.e., distinguish from noise floor)? Explain the results. 
 \item[(d)] At the light of the results, which satellites are more likely to be present in the capture? Once a satellite is acquired, which information is passed on to the tracking loops?
