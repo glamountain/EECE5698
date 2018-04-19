@@ -235,15 +235,57 @@ lags = [0:length(b)-1];
 
 \end{enumerate}
 
-\begin{lstlisting}[language=Matlab,numbers=left,stepnumber=1,=\scriptsize,keywordstyle=\color{blue}, commentstyle=\color{green},frame=single]
-\end{lstlisting}
-\vspace*{.5cm}
+\pagebreak
 
 \textbf{Problem 3}:
 Load \verb|HW4P3.mat| by typing \verb|load HW4P3| in Matlab shell. That file contains a variable \verb|ca_code_hidden|, a Gold code sequence from the GPS L1 C/A constellation. Determine which satellite's code corresponds to by looping over all possible values (i.e., $32$, which is the maximum number of GPS satellites). Explain your answer.
 
+\answer{The following code, HW4P3.m computes the correlation between the C/A codes for each of the satellites with the hidden code provided.}
 
-\vspace*{.5cm}
+\begin{lstlisting}[language=Matlab,numbers=left,stepnumber=1,=\scriptsize,keywordstyle=\color{blue}, commentstyle=\color{green},frame=single]
+clearvars
+close all
+clc
+
+% Load hidden code
+load('HW4P3.mat');
+[~,len1] = size(ca_code_hidden);
+
+% % Load all codes
+% load('Cacodes.mat');
+
+% Generate codes
+ca_code_matrix = CAcodegen([1:32]);
+
+[nc,len2] = size(ca_code_matrix);
+
+xcor_mat = zeros(nc,len1+len2-1);
+for i = 1:size(ca_code_matrix,1)
+    xcor_mat(i,:) = xcorr(ca_code_hidden, ca_code_matrix(i,:));
+end
+
+% Find maximum
+[~,sat] = max(max(xcor_mat,[],2));
+
+% Plot cross correlations
+fig1 = figure;
+surf(xcor_mat)
+title(sprintf('Hidden code cross correlation with known C/A Codes, Max=Sat#%d',sat))
+xlabel('Lag'); ylabel('Sattelite Vehicle');
+zlabel('Cross Correlation');
+saveas(fig1,['.\latex\figures\HW4P3.png'])
+\end{lstlisting}
+
+\answer{Figure \ref{fig:HW4P3} shows the computed cross-correlation functions. A peak can be seen at a certain lag value for Satellite Vehicle #28, which indicates that the hidden code corresponds to that for Sattelite Vehicle #28.}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{HW4/latex/figures/HW4P3.png}
+    \caption{Cross-Correlation of a C/A Code with a thrice-replicated version of itself}
+    \label{fig:HW4P3}
+\end{figure*}
+
+\pagebreak
 
 \textbf{Problem 4}:
 Detect satellites from a real data recording. We will use a similar procedure as in Problem 3 (i.e., looping over possible satellites and correlating with the corresponding spreading code). 
@@ -326,22 +368,33 @@ Below there is a code implementing non-coherent acquisitions over \verb|Nnci| CA
 \begin{enumerate}
 \item[(a)] Go through the code and explain (preferably supporting your discussion with math) the different steps implemented.
 
-\answer{ See HW4P3.m. For a given satellite, the algorithm performs the following steps:
+\answer{ See HW4P4.m. For a given satellite, the algorithm performs the following steps:
 
 \begin{enu}
 \item[(i)] Resample the code by replicating the points in the C/A code in order to create a sequence of chips with length defined by the coherent integration time. The number of replications needed to form a chip with the correct sample rate is given by the ratio of the sample rate to the chipping rate, $f_s/f_c$. The elements of the code are replicated to form these chips, and the entire code is replicated in order to form a sequence which spans the entire integration time.
 
 \item[(ii)] A sequence of data of length defined by the non-coherent integration time is "recorded" and used the resampled code is used to compute the cross ambiguity function for a set of doppler frequencies on either side of the intermediate frequency.
 
-\item[(iii)] The cross ambiguity functions computed for each non-coherent integration period are added together to form the approximation of the cross ambiguity function for the entire sample duration.
+\item[(iii)] The cross ambiguity functions computed for each non-coherent integration period are added together to form the approximation of the cross ambiguity function for the entire integration duration.
 
 \end{enu}
 
 }
 
-\item[(b)] Run the code with \verb|Nnci=1|. Explain the processing that takes place in the receiver in this configuration. How many satellites are you able to clearly detect (i.e., distinguish from noise floor)? 
-\item[(c)] Gradually increase \verb|Nnci| from $1$ to $10$ non-coherent integrations. Explain the processing that takes place in the receiver in this configuration. How many satellites are you able to clearly detect (i.e., distinguish from noise floor)? Explain the results. 
+\item[(b)] Run the code with \verb|Nnci=1|. Explain the processing that takes place in the receiver in this configuration. How many satellites are you able to clearly detect (i.e., distinguish from noise floor)?
+
+\answer{Visual inspection reveals that, with the possible exception of Satellite Vehicle \#7, no clear peaks are distinguishable from the noise floor for any satellites. Plots are not included space.}
+
+\item[(c)] Gradually increase \verb|Nnci| from $1$ to $10$ non-coherent integrations. Explain the processing that takes place in the receiver in this configuration. How many satellites are you able to clearly detect (i.e., distinguish from noise floor)? Explain the results.
+
+\answer{Attempting to identify satellite detection through visual inspection, increasing the number of non-coherent integrations to 4 additionally reveals clear peaks for Satellite Vehicle \#25, \#22, \#19, and \#16 in addition to \#7. This is due to the fact that averaging over a longer duration reduces the impact of the uncorrelated noise within the cross ambiguity function, allowing the signal to be more visible.
+
+Increasing the number of non-coherent integrations all the way to 10 does not reveal any more satellites, most likely because there are none. Although increasing the number of integrations makes detection easier, there is nothing more to be gained by increasing the duration once all of the satellites that are present have been detected.}
+
 \item[(d)] At the light of the results, which satellites are more likely to be present in the capture? Once a satellite is acquired, which information is passed on to the tracking loops?
+
+\answer{The satellites which are more likely to be present in the capture are those which exhibit the greatest signal to noise ratio within the cross ambiguity function. Based on our inspection for this data those are Satellite Vehicle \#25, \#22, \#19, \#16 and \#7. Following this step of the reciever, the cross ambiguity function as well as estimates of the doppler shift and time-delay for each of the detected satellites would be relayed to the tracking portion of the receiver.}
+
 \end{enumerate}
 
 
