@@ -23,7 +23,9 @@ end
 [~,sat] = max(max(xcor_mat,[],2));
 
 % Plot cross correlations
-plot(0:len1+len2-2,xcor_mat)
+fig1 = figure;
+surf(xcor_mat)
 title(sprintf('Hidden code cross correlation with known C/A Codes, Max=Sat#%d',sat))
-xlabel('Lag')
-ylabel('Cross Correlation');
+xlabel('Lag'); ylabel('Sattelite Vehicle');
+zlabel('Cross Correlation');
+saveas(fig1,['.\latex\figures\HW4P3.png'])
