@@ -1,4 +1,4 @@
-function [cxcor] = xcorr_circ(a,b)
+function [cxcor, lags] = xcorr_circ(a,b)
 
 % Normalize
 a = a(:) / norm(a);
@@ -12,3 +12,4 @@ for k=1:length(b)
     b = circshift(b,1,1);
 
 end
+lags = [0:length(b)-1];
