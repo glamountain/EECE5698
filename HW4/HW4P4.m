@@ -13,7 +13,7 @@ Nc = Tcoh * fs;     % number of samples contained in the coherent integration ti
 Nd = 81;            % Number of Doppler bins
 DopStep = 125;      % Doppler bin size in Hz
 secondOfData = 0.1; % Seconds of data to read
-Nnci = 1;           % number of non-coherent integrations of the CAF
+Nnci = 10;           % number of non-coherent integrations of the CAF
 SVIDs = 1:32;          % satellite vehicles (SV) to detect [7 16 19 21 22 25]
 
 % read file with the IF capture
@@ -51,13 +51,14 @@ for svnum = SVIDs
         % plot 2D grid search
         CAF_normalized = CAF/max(max(CAF));     % normalize to 1 the maximum value
         
+    end
+    
         figure(svnum)
         surf((0:(Nc - 1)) / fs, ((1:Nd) - ceil(Nd/2))*DopStep, CAF_normalized, 'EdgeColor', 'none');
         axis tight, set( gca, 'FontSize', 16 )
         xlabel('Code delay [s]'), ylabel('Doppler [Hz]')
         title(['SV ' num2str(svnum) ' , ' num2str(ii) ' non-coherent integrations'])
 %         pause
-    end
     % pause
     
     % estimate Doppler (if satellite detected)
