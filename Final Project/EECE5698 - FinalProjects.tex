@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amsfonts}
+\usepackage{subfigure}
+\usepackage{bm}
+\usepackage{listings}
+\usepackage{pifont}%
+
+\usepackage{pgfplots,tikz}
+
+\usepackage{fullpage}      % Margens
+\usepackage{indentfirst}   % Autoidentar
+
+\usepackage{graphicx}       % Pictures
+
+\begin{document}
+
+\noindent Northeastern University
+\hfill March 29, 2018
+
+\noindent Department of Electrical and Computer Engineering
+\hfill EECE5698-ST (Spring 2018)
+
+\noindent {} \hfill \textbf{Final Project}
+
+\noindent \rule{\linewidth}{1.5pt}
+
+\vspace*{.5cm}
+
+\underline{Due date}: Wednesday 25, April 2018. No extension will be granted. Send your report to closas@northeastern.edu
+
+To complete the project, feel free to consult other sources (i.e., books, internet, etc.) besides class notes or suggested references. Justify your answers!
+
+\noindent \rule{\linewidth}{1pt}
+\vspace*{.15cm}
+
+The objective of the EECE5698's Final Project is to learn more about certain aspects of the materials covered in class. Topics can be proposed by you, but a list of suggested topics is provided below for your reference and choice.  Some proposed topics contain a reference article, which is not the unique source of information, consider that as a starting point and dig deeper in the literature to have a broader understanding of the matter. 
+
+\section*{Topics}
+
+
+\begin{enumerate}
+	\item Several \textbf{time references} are currently in operation, based on different periodic processes associated with Earth's rotation, celestial mechanics or transitions between the energy levels in atomic oscillators \cite{subirana2013gnss}. Investigate how GPS, Glonass, Galileo, and Beidou Time References are related among them and to the Universal Time. 
+	\item \textbf{Bancroft method} is a popular method used to initialize the navigation solution algorithm (e.g. LS or WLS) when no prior information is available on user's location. Explain the method, its benefits, and implement it on our matlab simulator. 
+	\item \textbf{GDOP} is an important metric in GNSS. There are a number of properties and bounds that are extremely useful \cite{yarlagadda2000gps}. Explain the theory, main results, and resulting preferred geometries. If appropriate, implement on our matlab simulator. 
+	\item Different GNSS signals have different \textbf{spreading codes}. Go through the most common ones (Gold codes, Weill codes, Galileo memory codes, etc.) and explain their underlying theory, ACF properties, and implementation aspects. We already did for Gold codes. Support your findings with matlab implementations.
+	\item Modernized GNSSs are using variants of BOC modulation to transmit their signals. Investigate the \textbf{Composite BOC} (CBOC) modulation used in the Galileo Open Service transmitted on the E1 band. Support your findings with matlab implementations where appropriate.
+	\item Modernized GNSSs are using variants of BOC modulation to transmit their signals. Investigate the \textbf{Alternative BOC} (AltBOC) modulation used to transmit the Galileo signal on E5 band. Support your findings with matlab implementations where appropriate.
+	\item The \textbf{Cram\'er-Rao Bound} (CRB) of time-delay gives a bound on how accurate it can be, thus bounding pseudorange accuracy. It depends on signal-to-noise ratio and Gabor bandwidth, for instance. A derivation can be found in \cite{5310316}. Explain the derivations and support your findings with matlab implementations where appropriate. 
+	\item Extended local codes (i.e. concatenation of several codes) increase receiver sensitivity to weak signals. However, this approach is degraded due to bit transitions \cite{presti2009gnss}. Explain the theory behind \textbf{acquisition with bit transitions} and main applications. Support your findings with matlab implementations where appropriate. 
+    \item The standard approach to carrier-tracking is using a Phase Lock Loop (PLL) to continuously estimate the phase of the signal of a given satellite. Alternatively, one can use \textbf{Kalman filter for carrier-tracking}, as a generalization of PLLs \cite{vila2017plls}. Investigate that approach, explain the links between KF and PLL. Support your findings with matlab implementations where appropriate.
+    \item The \textbf{carrier-to-noise density ratio} ($C/N_0$) is a measure of signal-to-noise ratio that is independent of the bandwidth, thus being very appealing in spread spectrum modulations. In the context of GNSS, the estimated $C/N_0$ is widely used as a metric of performance of tracking loops. Explain how this is implemented in practice on a GNSS receiver and how this can be used as a code lock indicator to determine proper operation of the tracking loops \cite{falletti2010carrier}.
+    \item Besides pseudorange measurements (extracted from code-delays), another observable that can be used in the PVT calculation are \textbf{carrier-phase measurements} (extracted from carrier-tracking estimates) \cite{subirana2013gnss}. Investigate these type of measurements, its properties, advantages and disadvantages with respect to pseudorange measurements. 
+    \item GNSS has known vulnerabilities to \textbf{interferences and jamming} \cite{ioannides2016known,borio2016impact}. Revise the literature to identify major threats and countermeasures. Support your findings with matlab implementations where appropriate.  
+    \item GNSS is primarily suited for outdoor scenarios, presenting several \textbf{challenges in indoor conditions} \cite{6153154}. Investigate the limits of GNSS technology in indoors and which modifications to standard receiver schemes should be done to move towards that applications.
+\end{enumerate}
+
+
+% \newpage
+\section*{Guidelines}
+
+% The guidelines for the project are as follow:
+\begin{itemize}
+	\item Work in teams of $2$ people to complete the selected topic. 
+    \item Select a project from the list (or come up with your own topic) and communicate the team members and project topic to closas@northeastern.edu by no later than \underline{April 6, 2018}.
+    \item The outcome of the project should be a written report, sent preferably in pdf format to closas@northeastern.edu by the due date \underline{April 25, 2018}. 
+    \item The report should be between $5$ to $10$ pages long, $11$ pt fontsize, single column, and clearly stating team members and project title in the first page. You may use appendices in case you generated matlab code. If working in latex, you may use this same template as a reference.
+    \item Mandatory sections in the report are $i)$ Summary, at the very beginning of the report. Summarizing the scope of the project, results, and main ideas; $ii)$ Conclusions, being the last section and concisely summarizing your critical thoughts about the topic after your readings and research; and $iii)$ References, listing the main references used in the project and appropriately referred to in the main body of the document. The rest of sections, at the core of the report, would depend on the specific project, but make sure to follow a coherent order (i.e. introduction, body, ending).   
+    \item Include all necessary information to provide a full coverage of your topic (e.g. theoretical derivations, simulations, references, etc.) 
+    \item For the projects to be beneficial for everyone in class, their final versions will be uploaded to Blackboard and made available to the class. Bottom line: try your best to make your project interesting so the rest can learn from your effort! 
+\end{itemize}
+
+
+
+%%
+\bibliographystyle{IEEEtran}
+\bibliography{bibfile}
+
+\end{document}
