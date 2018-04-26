@@ -11,6 +11,8 @@
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{amsmath,amsfonts,amssymb}
+\usepackage{listings}
+
 
 \usepackage{pgfplots,tikz}
 
@@ -252,7 +254,7 @@ This this method is integrated into the Kalman filtering procedure depends on wh
 
 \subsection{Implementation and Experimentation}
 
-Appendix 2 contains the code KF\_carrier\_phase.m which implements and tests this method using the state space model defined for carrier phase estimation in section 2.3.1 and an extended Kalman filter. It does this by performing Monte-Carlo simulations wherein particles are propagated through the state update model and recorded along with their respective measurements, incorporating random peturbations according to pre-defined values of $\mathbf{Q_{t-1}}$ or $\mathbf{R_{t}}$ respectively.
+The associated code contains the code KF\_carrier\_phase.m which implements and tests this method using the state space model defined for carrier phase estimation in section 2.3.1 and an extended Kalman filter. It does this by performing Monte-Carlo simulations wherein particles are propagated through the state update model and recorded along with their respective measurements, incorporating random peturbations according to pre-defined values of $\mathbf{Q_{t-1}}$ or $\mathbf{R_{t}}$ respectively.
 
 The sequence of these simulated measurements is used as the input to an extended Kalman filter procedure which uses the known value of $\mathbf{Q_{t-1}}$ to perform tracking of the simulated particle while performing online estimation of $\mathbf{R_{t}}$ using the Bayesian inference method. In parallel to this, another filter is run using the same data while performing estimation of $\mathbf{R_{t}}$ using a non-Bayesian method described in \cite{Myer-76}. Using this framework the following experiments were performed:
 
