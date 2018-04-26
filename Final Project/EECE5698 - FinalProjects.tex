@@ -252,7 +252,7 @@ This this method is integrated into the Kalman filtering procedure depends on wh
 
 \subsection{Implementation and Experimentation}
 
-Appendix 1 contains the code KF\_carrier\_phase.m which implements and tests this method using the state space model defined for carrier phase estimation in section 2.3.1 and an extended Kalman filter. It does this by performing Monte-Carlo simulations wherein particles are propagated through the state update model and recorded along with their respective measurements, incorporating random peturbations according to pre-defined values of $\mathbf{Q_{t-1}}$ or $\mathbf{R_{t}}$ respectively.
+Appendix 2 contains the code KF\_carrier\_phase.m which implements and tests this method using the state space model defined for carrier phase estimation in section 2.3.1 and an extended Kalman filter. It does this by performing Monte-Carlo simulations wherein particles are propagated through the state update model and recorded along with their respective measurements, incorporating random peturbations according to pre-defined values of $\mathbf{Q_{t-1}}$ or $\mathbf{R_{t}}$ respectively.
 
 The sequence of these simulated measurements is used as the input to an extended Kalman filter procedure which uses the known value of $\mathbf{Q_{t-1}}$ to perform tracking of the simulated particle while performing online estimation of $\mathbf{R_{t}}$ using the Bayesian inference method. In parallel to this, another filter is run using the same data while performing estimation of $\mathbf{R_{t}}$ using a non-Bayesian method described in \cite{Myer-76}. Using this framework the following experiments were performed:
 
@@ -263,10 +263,11 @@ The sequence of these simulated measurements is used as the input to an extended
 
 \subsection{Results}
 
-
+Figures 1-3 in Appendix 1 depicts the state evolution, state error, and covariance estimation errors for the offline experiment, while Figures 3-6 depict the same. Our initial observation is that both the offline filter and online filter performed well initially, but that the online filter lost track, while the offline filter maintained the track. Upon viewing Figure 6 it's evident why this is the case: the covariance estimate for online estimation diverges from the true covariance almost instantly. Furthermore, when comparing the covariance estimates for offline and online mode (Figures 3, 6 respectively) it appears that the offline covariance estimate, while fairly bad, did not diverge from the true value in the same way that the online estimate did. Comparing the whitness of the innovation sequences reveals that while the offline estimate maintained a relatively decent whiteness coefficient, while the online estimate did not. Recall the requirement that the measurements for the Bayesian inference computation must be i.i.d, or in this case, white.
 
 \section*{Conclusions}
 
+The theory behind the integration of Bayesian inference using conjugate priors into the extended Kalman filter is sound, and in fact this method has been applied to linear models before. However, it's evident from running the experiment several times that whiteness of the innovation sequence cannot be guaranteed for the nonlinear case. Based on the result that the online method saw a significantly lower degree of whiteness than the offline method, one would be led to believe that the recursion associated with updating the covariance matrix $\mathbf{R_{t}}$ is responsible for the lack of independence between the samples. On the other hand, the offline estimates demonstrated a high degree of error as well, if somewhat lower than those of the online estimates, which would lead one to believe that the nonlinearity of the system is responsible for coloring the innovation sequence. The next steps for this project will be to identify which, if any of these are causing the estimator to fail, and from there hopefully a method can be developed to avoid these problems. In addition, it's possible that more optimal methods of Kalman filtering, such as the unscented Kalman filter, which do not rely on linearizations of the state space model, will not encounter the same pitfalls as the EKF, and those methods will be the subject of further research as well.
 
 % \section*{Topics}
 
@@ -306,5 +307,51 @@ The sequence of these simulated measurements is used as the input to an extended
 %%
 \bibliographystyle{IEEEtran}
 \bibliography{bibfile}
+
+
+\pagebreak
+\section{Appendix 1}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Final Project/figures/off1.png}
+    \caption{True State and Kalman Estimation, Offline Covariance Estimation}
+    \label{fig:off1}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Final Project/figures/off2.png}
+    \caption{True State and Kalman Estimation, Offline Covariance Estimation}
+    \label{fig:off2}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Final Project/figures/off3.png}
+    \caption{True State and Kalman Estimation, Offline Covariance Estimation}
+    \label{fig:off3}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Final Project/figures/on1.png}
+    \caption{True State and Kalman Estimation, Online Covariance Estimation}
+    \label{fig:on1}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Final Project/figures/on2.png}
+    \caption{True State and Kalman Estimation, Online Covariance Estimation}
+    \label{fig:on2}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Final Project/figures/on3.png}
+    \caption{True State and Kalman Estimation, Online Covariance Estimation}
+    \label{fig:on3}
+\end{figure*}
 
 \end{document}
